@@ -15,19 +15,23 @@ from goose.Configuration import Configuration
 
 VERBOSE = False
 
+
 def text_decode_helper(data, encoding):
     if encoding is None:
+        detect = None
         try:
             from chardet import detect
+            encoding = detect(data)['encoding']
         except ImportError:
             detect = lambda x: {'encoding': 'utf-8'}
-        encoding = detect(data)['encoding']
+            encoding = detect(data)['encoding']
 
     try:
         data = data.decode(encoding)
     except UnicodeDecodeError:
         data = data.decode("cp1252")
     return data
+
 
 def read_file(file_, encoding):
     data = open(file_, 'rb').read()
@@ -37,7 +41,7 @@ if __name__ == "__main__":
     p = optparse.OptionParser('%prog [(filename|url) [encoding]]',
                               version='%prog ' + __version__)
     p.add_option("-v", "--verbose", dest="verbose", action="store_true",
-        default=False, help="more descriptive output")
+                 default=False, help="more descriptive output")
 
     (options, args) = p.parse_args()
 
@@ -60,9 +64,10 @@ if __name__ == "__main__":
             if encoding is None:
                 try:
                     from feedparser import _getCharacterEncoding as enc
+                    encoding = enc(j.headers, text)[0]
                 except ImportError:
                     enc = lambda x, y: ('utf-8', 1)
-                encoding = enc(j.headers, text)[0]
+                    encoding = enc(j.headers, text)[0]
                 if encoding == 'us-ascii':
                     encoding = 'utf-8'
             data = text_decode_helper(text, encoding)
@@ -93,4 +98,3 @@ if __name__ == "__main__":
     print article.metaDescription
     sys.stdout.write("Article Text: ")
     print article.cleanedArticleText
-
