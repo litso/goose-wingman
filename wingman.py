@@ -61,7 +61,6 @@ if __name__ == "__main__":
                 try:
                     from feedparser import _getCharacterEncoding as enc
                 except ImportError:
-                    print "Here"
                     enc = lambda x, y: ('utf-8', 1)
                 encoding = enc(j.headers, text)[0]
                 if encoding == 'us-ascii':
