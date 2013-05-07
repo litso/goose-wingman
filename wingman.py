@@ -9,9 +9,7 @@ __author__ = "Robert Manson (robert@agogo.com)"
 import sys
 import optparse
 import urllib
-from goose.Goose import Goose
-from goose.Configuration import Configuration
-
+import goose
 
 VERBOSE = False
 
@@ -48,6 +46,7 @@ if __name__ == "__main__":
     if options.verbose:
         VERBOSE = True
 
+    page_url = 'http://www.apple.com'
     # process input
     if len(args) > 0:
         file_ = args[0]
@@ -58,6 +57,7 @@ if __name__ == "__main__":
             p.error('Too many arguments')
 
         if file_.startswith('http://') or file_.startswith('https://'):
+            page_url = file_
             baseurl = file_
             j = urllib.urlopen(baseurl)
             text = j.read()
@@ -77,24 +77,24 @@ if __name__ == "__main__":
     else:
         data = sys.stdin.read()
 
-    config = Configuration()
+    config = goose.Configuration()
     config.enableImageFetching = False
 
-    g = Goose(config=config)
+    g = goose.Goose(config=config)
 
-    article = g.extractContent(url='http://www.apple.com', rawHTML=data)
+    article = g.extract(url=page_url, raw_html=data)
 
     sys.stdout.write("Title: ")
     print article.title
     sys.stdout.write("Publish Date: ")
-    print article.publishDate
+    print article.publish_date
 
     sys.stdout.write("Tags: ")
     tags = list(article.tags)
     print tags
     sys.stdout.write("meta-keywords: ")
-    print article.metaKeywords
+    print article.meta_keywords
     sys.stdout.write("meta-description: ")
-    print article.metaDescription
+    print article.meta_description
     sys.stdout.write("Article Text: ")
-    print article.cleanedArticleText
+    print article.cleaned_text
